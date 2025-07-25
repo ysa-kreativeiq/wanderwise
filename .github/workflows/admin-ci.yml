@@ -1,0 +1,78 @@
+name: Admin Web CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'admin-web/**'
+      - 'shared/**'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'admin-web/**'
+      - 'shared/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+      
+      - name: Install dependencies
+        run: |
+          cd admin-web
+          flutter pub get
+          cd ../shared
+          flutter pub get
+      
+      - name: Analyze code
+        run: |
+          cd admin-web
+          flutter analyze
+          cd ../shared
+          flutter analyze
+      
+      - name: Run tests
+        run: |
+          cd admin-web
+          flutter test
+          cd ../shared
+          flutter test
+      
+      - name: Build web
+        run: |
+          cd admin-web
+          flutter build web --release
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && contains(github.event.head_commit.modified, 'admin-web/')
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+      
+      - name: Build web
+        run: |
+          cd admin-web
+          flutter build web --release
+      
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.ORG_ID }}
+          vercel-project-id: ${{ secrets.PROJECT_ID }}
+          working-directory: ./admin-web/build/web
+          vercel-args: '--prod' 

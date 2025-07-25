@@ -1,0 +1,155 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2822
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 .SFNS-Regular;\f1\fnil\fcharset0 .SFNS-Semibold;\f2\fnil\fcharset0 HelveticaNeue-Bold;
+}
+{\colortbl;\red255\green255\blue255;\red14\green14\blue14;}
+{\*\expandedcolortbl;;\cssrgb\c6700\c6700\c6700;}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\sl324\slmult1\pardirnatural\partightenfactor0
+
+\f0\fs28 \cf2 Develop a comprehensive Flutter application architecture that supports Android, iOS, and Flutter Web for a travel guide and itinerary management app. The app should be user-friendly, visually appealing, and enriched with interactive animations.\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\sl324\slmult1\pardirnatural\partightenfactor0
+
+\f1\b\fs30 \cf2 Project Overview:
+\f0\b0\fs28 \
+\pard\tqr\tx100\tx260\li260\fi-260\sl324\slmult1\sb240\partightenfactor0
+\cf2 	\'95	
+\f2\b Mobile Platforms:
+\f0\b0  Android and iOS using Flutter.\
+	\'95	
+\f2\b Web Platform:
+\f0\b0  Admin Panel using Flutter Web.\
+	\'95	
+\f2\b Backend/API:
+\f0\b0  Recommended scalable solution for backend services, including authentication, data storage, and real-time updates.\
+	\'95	
+\f2\b Maps Integration:
+\f0\b0  Leverage Google Maps APIs extensively to:\
+\pard\tqr\tx500\tx660\li660\fi-660\sl324\slmult1\sb240\partightenfactor0
+\cf2 	\'95	Display interactive maps with custom markers and information windows.\
+	\'95	Retrieve and display nearby data such as hotels, restaurants, attractions, and points of interest.\
+	\'95	Provide detailed routes and travel times from source to destination with customizable itineraries.\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\sl324\slmult1\pardirnatural\partightenfactor0
+
+\f1\b\fs30 \cf2 Features to Include:
+\f0\b0\fs28 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\sl324\slmult1\pardirnatural\partightenfactor0
+
+\f1\b\fs26 \cf2 User App:
+\f0\b0\fs28 \
+\pard\tqr\tx100\tx260\li260\fi-260\sl324\slmult1\sb240\partightenfactor0
+\cf2 	\'95	
+\f2\b User Authentication:
+\f0\b0 \
+\pard\tqr\tx500\tx660\li660\fi-660\sl324\slmult1\sb240\partightenfactor0
+\cf2 	\'95	Google Sign-In and Email/Password authentication.\
+\pard\tqr\tx100\tx260\li260\fi-260\sl324\slmult1\sb240\partightenfactor0
+\cf2 	\'95	
+\f2\b Country-based Travel Guide:
+\f0\b0 \
+\pard\tqr\tx500\tx660\li660\fi-660\sl324\slmult1\sb240\partightenfactor0
+\cf2 	\'95	Selection of countries, cities, and popular travel destinations.\
+	\'95	Detailed descriptions, photos, ratings, and reviews.\
+\pard\tqr\tx100\tx260\li260\fi-260\sl324\slmult1\sb240\partightenfactor0
+\cf2 	\'95	
+\f2\b Itinerary Builder:
+\f0\b0 \
+\pard\tqr\tx500\tx660\li660\fi-660\sl324\slmult1\sb240\partightenfactor0
+\cf2 	\'95	Interactive timeline view to create and manage itineraries.\
+	\'95	Customizable day-wise travel plans.\
+\pard\tqr\tx100\tx260\li260\fi-260\sl324\slmult1\sb240\partightenfactor0
+\cf2 	\'95	
+\f2\b Interactive Maps:
+\f0\b0 \
+\pard\tqr\tx500\tx660\li660\fi-660\sl324\slmult1\sb240\partightenfactor0
+\cf2 	\'95	Integrated Google Maps with live data for routes, distance, traffic, and estimated time.\
+	\'95	Nearby places suggestions and detailed information via Places API.\
+\pard\tqr\tx100\tx260\li260\fi-260\sl324\slmult1\sb240\partightenfactor0
+\cf2 	\'95	
+\f2\b Animations and UX:
+\f0\b0 \
+\pard\tqr\tx500\tx660\li660\fi-660\sl324\slmult1\sb240\partightenfactor0
+\cf2 	\'95	Smooth transitions, gestures, and animations leveraging Flutter\'92s animation framework (Hero animations, Lottie animations, etc.).\
+	\'95	Visually appealing UI with intuitive navigation (Material 3, Cupertino, or custom theming).\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\sl324\slmult1\pardirnatural\partightenfactor0
+
+\f1\b\fs26 \cf2 Admin Panel (Flutter Web):
+\f0\b0\fs28 \
+\pard\tqr\tx100\tx260\li260\fi-260\sl324\slmult1\sb240\partightenfactor0
+\cf2 	\'95	
+\f2\b Dashboard:
+\f0\b0 \
+\pard\tqr\tx500\tx660\li660\fi-660\sl324\slmult1\sb240\partightenfactor0
+\cf2 	\'95	Overview metrics and quick stats.\
+	\'95	Recent activity feed (itinerary creations, user sign-ups, etc.).\
+\pard\tqr\tx100\tx260\li260\fi-260\sl324\slmult1\sb240\partightenfactor0
+\cf2 	\'95	
+\f2\b Content Management System (CMS):
+\f0\b0 \
+\pard\tqr\tx500\tx660\li660\fi-660\sl324\slmult1\sb240\partightenfactor0
+\cf2 	\'95	CRUD management for countries, cities, places of interest, and itineraries.\
+	\'95	Ability to manage user-generated content (reviews, ratings).\
+\pard\tqr\tx100\tx260\li260\fi-260\sl324\slmult1\sb240\partightenfactor0
+\cf2 	\'95	
+\f2\b User Management:
+\f0\b0 \
+\pard\tqr\tx500\tx660\li660\fi-660\sl324\slmult1\sb240\partightenfactor0
+\cf2 	\'95	Manage user accounts and permissions.\
+	\'95	Basic analytics (active users, usage patterns).\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\sl324\slmult1\pardirnatural\partightenfactor0
+
+\f1\b\fs30 \cf2 Technical Requirements:
+\f0\b0\fs28 \
+\pard\tqr\tx100\tx260\li260\fi-260\sl324\slmult1\sb240\partightenfactor0
+\cf2 	\'95	
+\f2\b Flutter Framework:
+\f0\b0  Latest stable Flutter version supporting Android, iOS, and web builds.\
+	\'95	
+\f2\b State Management:
+\f0\b0  Provider, BLoC, or Riverpod for scalable state management.\
+	\'95	
+\f2\b API Integration:
+\f0\b0  Secure implementation of Google APIs including:\
+\pard\tqr\tx500\tx660\li660\fi-660\sl324\slmult1\sb240\partightenfactor0
+\cf2 	\'95	Google Maps SDK for Flutter.\
+	\'95	Google Places API.\
+	\'95	Google Directions API.\
+\pard\tqr\tx100\tx260\li260\fi-260\sl324\slmult1\sb240\partightenfactor0
+\cf2 	\'95	
+\f2\b Animations:
+\f0\b0  Extensive use of Flutter\'92s native animation APIs and packages such as:\
+\pard\tqr\tx500\tx660\li660\fi-660\sl324\slmult1\sb240\partightenfactor0
+\cf2 	\'95	flutter_animate\
+	\'95	animations package\
+	\'95	lottie animations\
+\pard\tqr\tx100\tx260\li260\fi-260\sl324\slmult1\sb240\partightenfactor0
+\cf2 	\'95	
+\f2\b Responsive Design:
+\f0\b0  Fully responsive layout optimized for various mobile devices and web browsers.\
+	\'95	
+\f2\b Localization:
+\f0\b0  Design for multi-language support from the start (using Flutter Intl or similar).\
+	\'95	
+\f2\b Accessibility:
+\f0\b0  Adherence to accessibility best practices.\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\sl324\slmult1\pardirnatural\partightenfactor0
+
+\f1\b\fs30 \cf2 Deliverables:
+\f0\b0\fs28 \
+\pard\tqr\tx100\tx260\li260\fi-260\sl324\slmult1\sb240\partightenfactor0
+\cf2 	\'95	A structured and modular codebase following best practices and recommended architecture patterns.\
+	\'95	Detailed documentation for each module and feature implementation.\
+	\'95	Example unit, integration, and widget tests.\
+	\'95	Recommendations on performance optimization and best practices for scalability.\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\sl324\slmult1\pardirnatural\partightenfactor0
+
+\f1\b\fs30 \cf2 Desired Output:
+\f0\b0\fs28 \
+\
+Provide clearly defined folders, files structure, and starter code scaffolding with example implementations for key features (authentication, maps integration, animations, CRUD operations), along with recommended dependency management and configuration setup ready for further development.}

@@ -1,0 +1,63 @@
+name: Shared Package CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'shared/**'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'shared/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+      
+      - name: Install dependencies
+        run: |
+          cd shared
+          flutter pub get
+      
+      - name: Analyze code
+        run: |
+          cd shared
+          flutter analyze
+      
+      - name: Run tests
+        run: |
+          cd shared
+          flutter test
+      
+      - name: Build package
+        run: |
+          cd shared
+          flutter build
+
+  publish:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && contains(github.event.head_commit.modified, 'shared/')
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+      
+      - name: Publish to pub.dev (if public)
+        run: |
+          cd shared
+          flutter pub publish --dry-run
+        # Uncomment to actually publish:
+        # flutter pub publish 

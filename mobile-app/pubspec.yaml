@@ -1,0 +1,70 @@
+name: wanderwise_mobile
+description: WanderWise Mobile App - Travel planning and exploration app for iOS and Android.
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.0.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # State Management
+  provider: ^6.0.5
+  
+  # Firebase (Core services)
+  firebase_core: ^3.15.2
+  firebase_auth: ^5.7.0
+  cloud_firestore: ^5.6.12
+  firebase_storage: ^12.2.2
+  firebase_analytics: ^11.3.3
+  
+  # UI & Animations
+  cupertino_icons: ^1.0.8
+  google_fonts: ^6.2.1
+  flutter_animate: ^4.5.0
+  
+  # Maps & Location (Mobile-specific)
+  google_maps_flutter: ^2.12.3
+  geolocator: ^12.0.0
+  geocoding: ^3.0.0
+  
+  # Authentication (Mobile-specific)
+  google_sign_in: ^7.1.1
+  sign_in_with_apple: ^6.0.0
+  
+  # Network & Storage
+  http: ^1.4.0
+  shared_preferences: ^2.5.3
+  cached_network_image: ^3.3.1
+  
+  # Utilities
+  intl: ^0.20.2
+  uuid: ^4.5.1
+  permission_handler: ^11.3.1
+  
+  # Shared Package (will be created)
+  wanderwise_shared:
+    path: ../shared
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  
+  assets:
+    - assets/images/
+    - assets/icons/
+  
+  # fonts:
+  #   - family: Poppins
+  #     fonts:
+  #       - asset: assets/fonts/Poppins-Regular.ttf
+  #       - asset: assets/fonts/Poppins-Bold.ttf
+  #         weight: 700 

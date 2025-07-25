@@ -1,0 +1,80 @@
+name: Mobile App CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'mobile-app/**'
+      - 'shared/**'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'mobile-app/**'
+      - 'shared/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+      
+      - name: Install dependencies
+        run: |
+          cd mobile-app
+          flutter pub get
+          cd ../shared
+          flutter pub get
+      
+      - name: Analyze code
+        run: |
+          cd mobile-app
+          flutter analyze
+          cd ../shared
+          flutter analyze
+      
+      - name: Run tests
+        run: |
+          cd mobile-app
+          flutter test
+          cd ../shared
+          flutter test
+      
+      - name: Build Android APK
+        run: |
+          cd mobile-app
+          flutter build apk --debug
+      
+      - name: Build iOS (simulator)
+        run: |
+          cd mobile-app
+          flutter build ios --debug --no-codesign
+
+  deploy-android:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && contains(github.event.head_commit.modified, 'mobile-app/')
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+      
+      - name: Build Android Release
+        run: |
+          cd mobile-app
+          flutter build appbundle --release
+      
+      - name: Upload to Google Play (Manual)
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-release
+          path: mobile-app/build/app/outputs/bundle/release/app-release.aab 
