@@ -15,12 +15,8 @@ dependencies:
   # State Management
   provider: ^6.0.5
   
-  # Firebase (Core services)
-  firebase_core: ^3.15.2
-  firebase_auth: ^5.7.0
-  cloud_firestore: ^5.6.12
-  firebase_storage: ^12.2.2
-  firebase_analytics: ^11.3.3
+  # Supabase (Core services)
+  supabase_flutter: ^2.8.0
   
   # UI & Animations
   cupertino_icons: ^1.0.8
@@ -28,12 +24,10 @@ dependencies:
   flutter_animate: ^4.5.0
   
   # Maps & Location (Mobile-specific)
-  google_maps_flutter: ^2.12.3
   geolocator: ^12.0.0
   geocoding: ^3.0.0
   
   # Authentication (Mobile-specific)
-  google_sign_in: ^7.1.1
   sign_in_with_apple: ^6.0.0
   
   # Network & Storage
@@ -45,10 +39,6 @@ dependencies:
   intl: ^0.20.2
   uuid: ^4.5.1
   permission_handler: ^11.3.1
-  
-  # Shared Package (will be created)
-  wanderwise_shared:
-    path: ../shared
 
 dev_dependencies:
   flutter_test:

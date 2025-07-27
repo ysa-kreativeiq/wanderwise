@@ -1,0 +1,28 @@
+{
+  "name": "wanderwise-migration",
+  "version": "1.0.0",
+  "description": "Firebase to Supabase migration scripts for WanderWise",
+  "main": "migrate_data.js",
+  "scripts": {
+    "migrate": "node migrate_data.js",
+    "migrate:users": "node -e \"require('./migrate_data.js').migrateUsers()\"",
+    "migrate:destinations": "node -e \"require('./migrate_data.js').migrateDestinations()\"",
+    "migrate:itineraries": "node -e \"require('./migrate_data.js').migrateItineraries()\""
+  },
+  "dependencies": {
+    "firebase-admin": "^11.11.0",
+    "@supabase/supabase-js": "^2.38.0"
+  },
+  "devDependencies": {
+    "dotenv": "^16.3.1"
+  },
+  "keywords": [
+    "firebase",
+    "supabase",
+    "migration",
+    "flutter",
+    "wanderwise"
+  ],
+  "author": "WanderWise Team",
+  "license": "MIT"
+} 

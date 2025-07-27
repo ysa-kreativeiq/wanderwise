@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/providers/auth_provider.dart';
-import 'login_screen.dart';
+import 'simple_login_screen.dart';
 import '../../../home/presentation/screens/main_navigation_screen.dart';
 
 class AuthWrapper extends StatelessWidget {
@@ -19,12 +19,12 @@ class AuthWrapper extends StatelessWidget {
             ),
           );
         }
-        
+
         if (authProvider.isAuthenticated) {
           return const MainNavigationScreen();
         }
-        
-        return const LoginScreen();
+
+        return const SimpleLoginScreen();
       },
     );
   }

@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide User;
 
 import '../models/user_model.dart';
-import '../services/firebase_service.dart';
+import '../services/supabase_service.dart';
 import '../services/preferences_service.dart';
 
 class AuthProvider extends ChangeNotifier {
-  UserModel? _currentUser;
+  User? _currentUser;
   bool _isLoading = false;
   String? _errorMessage;
 
-  UserModel? get currentUser => _currentUser;
+  User? get currentUser => _currentUser;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   bool get isAuthenticated => _currentUser != null;
@@ -26,9 +24,10 @@ class AuthProvider extends ChangeNotifier {
 
     try {
       // Listen to auth state changes
-      FirebaseService.auth.authStateChanges().listen((User? user) async {
+      SupabaseService.authStateChanges.listen((AuthState data) async {
+        final user = data.session?.user;
         if (user != null) {
-          await _loadUserData(user.uid);
+          await _loadUserData(user.id);
         } else {
           _currentUser = null;
           notifyListeners();
@@ -36,9 +35,10 @@ class AuthProvider extends ChangeNotifier {
       });
 
       // Check for existing user
-      final currentUser = FirebaseService.auth.currentUser;
+      final currentUser = SupabaseService.getCurrentUser();
       if (currentUser != null) {
-        await _loadUserData(currentUser.uid);
+        _currentUser = currentUser;
+        notifyListeners();
       }
     } catch (e) {
       print('Error initializing auth: $e');
@@ -47,16 +47,11 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> _loadUserData(String uid) async {
+  Future<void> _loadUserData(String userId) async {
     try {
-      final userDoc =
-          await FirebaseService.firestore.collection('users').doc(uid).get();
-
-      if (userDoc.exists) {
-        _currentUser = UserModel.fromJson({
-          'id': uid,
-          ...userDoc.data()!,
-        });
+      final user = await SupabaseService.getUserById(userId);
+      if (user != null) {
+        _currentUser = user;
         notifyListeners();
       }
     } catch (e) {
@@ -86,34 +81,30 @@ class AuthProvider extends ChangeNotifier {
       _setLoading(true);
       _clearError();
 
-      final userCredential =
-          await FirebaseService.auth.signInWithEmailAndPassword(
+      final response = await SupabaseService.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      final user = userCredential.user;
+      final user = response.user;
       if (user != null) {
-        await _loadUserData(user.uid);
+        await _loadUserData(user.id);
         await _saveUserToPreferences(user);
       }
 
       _setLoading(false);
-      return true;
-    } on FirebaseAuthException catch (e) {
+      return user != null;
+    } on AuthException catch (e) {
       String errorMessage;
-      switch (e.code) {
-        case 'invalid-email':
-          errorMessage = 'Invalid email address';
+      switch (e.message) {
+        case 'Invalid login credentials':
+          errorMessage = 'Invalid email or password';
           break;
-        case 'user-disabled':
-          errorMessage = 'This account has been disabled';
+        case 'Email not confirmed':
+          errorMessage = 'Please confirm your email address';
           break;
-        case 'user-not-found':
+        case 'User not found':
           errorMessage = 'No account found with this email';
-          break;
-        case 'wrong-password':
-          errorMessage = 'Incorrect password';
           break;
         default:
           errorMessage = 'Failed to sign in: ${e.message}';
@@ -134,49 +125,48 @@ class AuthProvider extends ChangeNotifier {
       _setLoading(true);
       _clearError();
 
-      final userCredential =
-          await FirebaseService.auth.createUserWithEmailAndPassword(
+      final response = await SupabaseService.signUpWithEmailAndPassword(
         email: email,
         password: password,
+        name: name,
       );
 
-      final user = userCredential.user;
+      final user = response.user;
       if (user != null) {
-        await user.updateDisplayName(name);
-
-        final userModel = UserModel(
-          id: user.uid,
+        // Create user profile in database
+        final userModel = User(
+          id: user.id,
           email: user.email!,
           name: name,
-          photoUrl: user.photoURL,
+          photoUrl: user.userMetadata?['photo_url'],
+          roles: [UserRole.traveler],
+          isActive: true,
           createdAt: DateTime.now(),
-          preferences: const UserPreferences(),
+          lastLoginAt: DateTime.now(),
+          profile: {},
         );
 
-        await FirebaseService.firestore
-            .collection('users')
-            .doc(user.uid)
-            .set(userModel.toJson());
+        // Insert user into database
+        await Supabase.instance.client
+            .from('users')
+            .insert(userModel.toSupabase());
 
         _currentUser = userModel;
         await _saveUserToPreferences(user);
       }
 
       _setLoading(false);
-      return true;
-    } on FirebaseAuthException catch (e) {
+      return user != null;
+    } on AuthException catch (e) {
       String errorMessage;
-      switch (e.code) {
-        case 'email-already-in-use':
+      switch (e.message) {
+        case 'User already registered':
           errorMessage = 'An account already exists with this email';
           break;
-        case 'invalid-email':
+        case 'Invalid email':
           errorMessage = 'Invalid email address';
           break;
-        case 'operation-not-allowed':
-          errorMessage = 'Email/password accounts are not enabled';
-          break;
-        case 'weak-password':
+        case 'Password should be at least 6 characters':
           errorMessage = 'Password is too weak';
           break;
         default:
@@ -197,17 +187,17 @@ class AuthProvider extends ChangeNotifier {
       _setLoading(true);
       _clearError();
 
-      await FirebaseService.auth.sendPasswordResetEmail(email: email);
+      await Supabase.instance.client.auth.resetPasswordForEmail(email);
 
       _setLoading(false);
       return true;
-    } on FirebaseAuthException catch (e) {
+    } on AuthException catch (e) {
       String errorMessage;
-      switch (e.code) {
-        case 'invalid-email':
+      switch (e.message) {
+        case 'Invalid email':
           errorMessage = 'Invalid email address';
           break;
-        case 'user-not-found':
+        case 'User not found':
           errorMessage = 'No account found with this email';
           break;
         default:
@@ -227,9 +217,7 @@ class AuthProvider extends ChangeNotifier {
     try {
       _setLoading(true);
 
-      await FirebaseService.auth.signOut();
-      // TODO: Fix Google Sign-In signOut
-      // await GoogleSignIn().signOut();
+      await SupabaseService.signOut();
 
       _currentUser = null;
       await PreferencesService.clearUserData();
@@ -241,42 +229,11 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> _createOrUpdateUser(User user) async {
+  Future<void> _saveUserToPreferences(dynamic user) async {
     try {
-      final userDoc = await FirebaseService.firestore
-          .collection('users')
-          .doc(user.uid)
-          .get();
-
-      if (!userDoc.exists) {
-        final userModel = UserModel(
-          id: user.uid,
-          email: user.email!,
-          name: user.displayName ?? 'User',
-          photoUrl: user.photoURL,
-          createdAt: DateTime.now(),
-          preferences: const UserPreferences(),
-        );
-
-        await FirebaseService.firestore
-            .collection('users')
-            .doc(user.uid)
-            .set(userModel.toJson());
-
-        _currentUser = userModel;
-      } else {
-        await _loadUserData(user.uid);
-      }
-    } catch (e) {
-      print('Error creating/updating user: $e');
-    }
-  }
-
-  Future<void> _saveUserToPreferences(User user) async {
-    try {
-      PreferencesService.userId = user.uid;
+      PreferencesService.userId = user.id;
       PreferencesService.userEmail = user.email;
-      PreferencesService.userName = user.displayName ?? 'User';
+      PreferencesService.userName = user.userMetadata?['name'] ?? 'User';
     } catch (e) {
       print('Error saving user to preferences: $e');
     }
@@ -285,13 +242,13 @@ class AuthProvider extends ChangeNotifier {
   Future<bool> updateUserProfile({
     String? name,
     String? photoUrl,
-    UserPreferences? preferences,
+    Map<String, dynamic>? profile,
   }) async {
     try {
       _setLoading(true);
 
-      final user = FirebaseService.auth.currentUser;
-      if (user == null) {
+      final currentUser = SupabaseService.getCurrentUser();
+      if (currentUser == null) {
         _setError('No user logged in');
         _setLoading(false);
         return false;
@@ -299,26 +256,24 @@ class AuthProvider extends ChangeNotifier {
 
       final updates = <String, dynamic>{};
       if (name != null) {
-        await user.updateDisplayName(name);
         updates['name'] = name;
       }
       if (photoUrl != null) {
-        await user.updatePhotoURL(photoUrl);
-        updates['photoUrl'] = photoUrl;
+        updates['photo_url'] = photoUrl;
       }
-      if (preferences != null) {
-        updates['preferences'] = preferences.toJson();
+      if (profile != null) {
+        updates['profile'] = profile;
       }
 
       if (updates.isNotEmpty) {
-        updates['updatedAt'] = DateTime.now().toIso8601String();
+        updates['updated_at'] = DateTime.now().toIso8601String();
 
-        await FirebaseService.firestore
-            .collection('users')
-            .doc(user.uid)
-            .update(updates);
+        await SupabaseService.updateUserProfile(
+          userId: currentUser.id,
+          updates: updates,
+        );
 
-        await _loadUserData(user.uid);
+        await _loadUserData(currentUser.id);
       }
 
       _setLoading(false);

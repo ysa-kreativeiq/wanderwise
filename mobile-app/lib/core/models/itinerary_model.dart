@@ -1,110 +1,139 @@
-class ItineraryModel {
+class Itinerary {
   final String id;
+  final String userId;
   final String title;
   final String description;
-  final DateTime startDate;
-  final DateTime endDate;
-  final List<String> destinationIds;
-  final List<DayModel> days;
+  final DateTime? startDate;
+  final DateTime? endDate;
+  final String status;
+  final bool isPublic;
   final double? totalBudget;
   final String? notes;
-  final List<String> sharedWith;
-  final bool isPublic;
   final DateTime createdAt;
   final DateTime updatedAt;
-  
-  const ItineraryModel({
+
+  const Itinerary({
     required this.id,
+    required this.userId,
     required this.title,
     required this.description,
-    required this.startDate,
-    required this.endDate,
-    required this.destinationIds,
-    required this.days,
+    this.startDate,
+    this.endDate,
+    this.status = 'draft',
+    this.isPublic = false,
     this.totalBudget,
     this.notes,
-    this.sharedWith = const [],
-    this.isPublic = false,
     required this.createdAt,
     required this.updatedAt,
   });
-  
-  factory ItineraryModel.fromJson(Map<String, dynamic> json) {
-    return ItineraryModel(
+
+  factory Itinerary.fromJson(Map<String, dynamic> json) {
+    return Itinerary(
       id: json['id'] as String,
+      userId: json['userId'] as String,
       title: json['title'] as String,
       description: json['description'] as String,
-      startDate: DateTime.parse(json['startDate'] as String),
-      endDate: DateTime.parse(json['endDate'] as String),
-      destinationIds: List<String>.from(json['destinationIds'] ?? []),
-      days: (json['days'] as List<dynamic>? ?? [])
-          .map((e) => DayModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      startDate: json['startDate'] != null
+          ? DateTime.parse(json['startDate'] as String)
+          : null,
+      endDate: json['endDate'] != null
+          ? DateTime.parse(json['endDate'] as String)
+          : null,
+      status: json['status'] as String? ?? 'draft',
+      isPublic: json['isPublic'] as bool? ?? false,
       totalBudget: json['totalBudget'] as double?,
       notes: json['notes'] as String?,
-      sharedWith: List<String>.from(json['sharedWith'] ?? []),
-      isPublic: json['isPublic'] as bool? ?? false,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
     );
   }
-  
+
+  factory Itinerary.fromSupabase(Map<String, dynamic> data) {
+    return Itinerary(
+      id: data['id'] ?? '',
+      userId: data['user_id'] ?? '',
+      title: data['title'] ?? '',
+      description: data['description'] ?? '',
+      startDate: data['start_date'] != null
+          ? DateTime.parse(data['start_date'])
+          : null,
+      endDate:
+          data['end_date'] != null ? DateTime.parse(data['end_date']) : null,
+      status: data['status'] ?? 'draft',
+      isPublic: data['is_public'] ?? false,
+      totalBudget: data['total_budget']?.toDouble(),
+      notes: data['notes'],
+      createdAt: DateTime.parse(data['created_at']),
+      updatedAt: DateTime.parse(data['updated_at']),
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'userId': userId,
       'title': title,
       'description': description,
-      'startDate': startDate.toIso8601String(),
-      'endDate': endDate.toIso8601String(),
-      'destinationIds': destinationIds,
-      'days': days.map((e) => e.toJson()).toList(),
+      'startDate': startDate?.toIso8601String(),
+      'endDate': endDate?.toIso8601String(),
+      'status': status,
+      'isPublic': isPublic,
       'totalBudget': totalBudget,
       'notes': notes,
-      'sharedWith': sharedWith,
-      'isPublic': isPublic,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };
   }
-  
-  ItineraryModel copyWith({
+
+  Map<String, dynamic> toSupabase() {
+    return {
+      'user_id': userId,
+      'title': title,
+      'description': description,
+      'start_date': startDate?.toIso8601String(),
+      'end_date': endDate?.toIso8601String(),
+      'status': status,
+      'is_public': isPublic,
+      'total_budget': totalBudget,
+      'notes': notes,
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
+    };
+  }
+
+  Itinerary copyWith({
     String? id,
+    String? userId,
     String? title,
     String? description,
     DateTime? startDate,
     DateTime? endDate,
-    List<String>? destinationIds,
-    List<DayModel>? days,
+    String? status,
+    bool? isPublic,
     double? totalBudget,
     String? notes,
-    List<String>? sharedWith,
-    bool? isPublic,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
-    return ItineraryModel(
+    return Itinerary(
       id: id ?? this.id,
+      userId: userId ?? this.userId,
       title: title ?? this.title,
       description: description ?? this.description,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
-      destinationIds: destinationIds ?? this.destinationIds,
-      days: days ?? this.days,
+      status: status ?? this.status,
+      isPublic: isPublic ?? this.isPublic,
       totalBudget: totalBudget ?? this.totalBudget,
       notes: notes ?? this.notes,
-      sharedWith: sharedWith ?? this.sharedWith,
-      isPublic: isPublic ?? this.isPublic,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }
-  
-  int get durationInDays => endDate.difference(startDate).inDays + 1;
-  
-  double get totalEstimatedCost {
-    return days.fold(0.0, (sum, day) => 
-        sum + day.activities.fold(0.0, (daySum, activity) => 
-            daySum + (activity.estimatedCost ?? 0.0)));
+
+  int get durationInDays {
+    if (startDate == null || endDate == null) return 0;
+    return endDate!.difference(startDate!).inDays + 1;
   }
 }
 
@@ -114,7 +143,7 @@ class DayModel {
   final String title;
   final List<ActivityModel> activities;
   final String? notes;
-  
+
   const DayModel({
     required this.id,
     required this.date,
@@ -122,7 +151,7 @@ class DayModel {
     required this.activities,
     this.notes,
   });
-  
+
   factory DayModel.fromJson(Map<String, dynamic> json) {
     return DayModel(
       id: json['id'] as String,
@@ -134,7 +163,7 @@ class DayModel {
       notes: json['notes'] as String?,
     );
   }
-  
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -144,7 +173,7 @@ class DayModel {
       'notes': notes,
     };
   }
-  
+
   DayModel copyWith({
     String? id,
     DateTime? date,
@@ -178,7 +207,7 @@ class ActivityModel {
   final List<String> tags;
   final String? notes;
   final bool isCompleted;
-  
+
   const ActivityModel({
     required this.id,
     required this.title,
@@ -196,7 +225,7 @@ class ActivityModel {
     this.notes,
     this.isCompleted = false,
   });
-  
+
   factory ActivityModel.fromJson(Map<String, dynamic> json) {
     return ActivityModel(
       id: json['id'] as String,
@@ -207,8 +236,8 @@ class ActivityModel {
         orElse: () => ActivityType.sightseeing,
       ),
       startTime: DateTime.parse(json['startTime'] as String),
-      endTime: json['endTime'] != null 
-          ? DateTime.parse(json['endTime'] as String) 
+      endTime: json['endTime'] != null
+          ? DateTime.parse(json['endTime'] as String)
           : null,
       latitude: json['latitude'] as double?,
       longitude: json['longitude'] as double?,
@@ -221,7 +250,7 @@ class ActivityModel {
       isCompleted: json['isCompleted'] as bool? ?? false,
     );
   }
-  
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -241,7 +270,7 @@ class ActivityModel {
       'isCompleted': isCompleted,
     };
   }
-  
+
   ActivityModel copyWith({
     String? id,
     String? title,

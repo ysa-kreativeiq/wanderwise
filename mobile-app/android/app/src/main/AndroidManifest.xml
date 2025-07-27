@@ -1,23 +1,19 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Internet Permission for Firebase -->
+    <!-- Internet Permission for Supabase -->
     <uses-permission android:name="android.permission.INTERNET" />
     
-    <!-- Location Permissions for Maps and Location Features -->
+    <!-- Location Permissions for Location Features -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     
-    <!-- Network State Permission for Firebase -->
+    <!-- Network State Permission for Network Features -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     
     <application
         android:label="WanderWise"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
-        
-        <!-- Google Maps API Key -->
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBu1kU1tpPZttEkwdlhWZcNc7PJ33L7u04" />
+        android:icon="@mipmap/ic_launcher"
+        android:networkSecurityConfig="@xml/network_security_config">
         
         <activity
             android:name=".MainActivity"

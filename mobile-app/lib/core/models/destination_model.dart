@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class Destination {
   final String id;
   final String name;
@@ -43,32 +41,55 @@ class Destination {
     required this.updatedAt,
   });
 
-  factory Destination.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
+  factory Destination.fromJson(Map<String, dynamic> json) {
     return Destination(
-      id: doc.id,
+      id: json['id'] ?? '',
+      name: json['name'] ?? '',
+      description: json['description'] ?? '',
+      country: json['country'] ?? '',
+      city: json['city'] ?? '',
+      imageUrl: json['imageUrl'] ?? '',
+      rating: (json['rating'] ?? 0.0).toDouble(),
+      reviewCount: json['reviewCount'] ?? 0,
+      categories: List<String>.from(json['categories'] ?? []),
+      location: json['location'] ?? {},
+      attractions: List<String>.from(json['attractions'] ?? []),
+      weather: json['weather'] ?? {},
+      estimatedCost: json['estimatedCost'] ?? 0,
+      currency: json['currency'] ?? 'USD',
+      bestTimeToVisit: List<String>.from(json['bestTimeToVisit'] ?? []),
+      languages: List<String>.from(json['languages'] ?? []),
+      timezone: json['timezone'] ?? '',
+      createdAt: DateTime.parse(json['createdAt']),
+      updatedAt: DateTime.parse(json['updatedAt']),
+    );
+  }
+
+  factory Destination.fromSupabase(Map<String, dynamic> data) {
+    return Destination(
+      id: data['id'] ?? '',
       name: data['name'] ?? '',
       description: data['description'] ?? '',
       country: data['country'] ?? '',
       city: data['city'] ?? '',
-      imageUrl: data['imageUrl'] ?? '',
+      imageUrl: data['image_url'] ?? '',
       rating: (data['rating'] ?? 0.0).toDouble(),
-      reviewCount: data['reviewCount'] ?? 0,
+      reviewCount: data['review_count'] ?? 0,
       categories: List<String>.from(data['categories'] ?? []),
       location: data['location'] ?? {},
       attractions: List<String>.from(data['attractions'] ?? []),
       weather: data['weather'] ?? {},
-      estimatedCost: data['estimatedCost'] ?? 0,
+      estimatedCost: data['estimated_cost'] ?? 0,
       currency: data['currency'] ?? 'USD',
-      bestTimeToVisit: List<String>.from(data['bestTimeToVisit'] ?? []),
+      bestTimeToVisit: List<String>.from(data['best_time_to_visit'] ?? []),
       languages: List<String>.from(data['languages'] ?? []),
       timezone: data['timezone'] ?? '',
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
-      updatedAt: (data['updatedAt'] as Timestamp).toDate(),
+      createdAt: DateTime.parse(data['created_at']),
+      updatedAt: DateTime.parse(data['updated_at']),
     );
   }
 
-  Map<String, dynamic> toFirestore() {
+  Map<String, dynamic> toJson() {
     return {
       'name': name,
       'description': description,
@@ -86,8 +107,31 @@ class Destination {
       'bestTimeToVisit': bestTimeToVisit,
       'languages': languages,
       'timezone': timezone,
-      'createdAt': Timestamp.fromDate(createdAt),
-      'updatedAt': Timestamp.fromDate(updatedAt),
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
+    };
+  }
+
+  Map<String, dynamic> toSupabase() {
+    return {
+      'name': name,
+      'description': description,
+      'country': country,
+      'city': city,
+      'image_url': imageUrl,
+      'rating': rating,
+      'review_count': reviewCount,
+      'categories': categories,
+      'location': location,
+      'attractions': attractions,
+      'weather': weather,
+      'estimated_cost': estimatedCost,
+      'currency': currency,
+      'best_time_to_visit': bestTimeToVisit,
+      'languages': languages,
+      'timezone': timezone,
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
     };
   }
 

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 
 import '../models/destination_model.dart';
 import '../services/preferences_service.dart';

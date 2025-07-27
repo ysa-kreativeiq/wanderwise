@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
-import '../../../../core/providers/destination_provider.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../search/presentation/screens/search_screen.dart';
 
@@ -11,7 +8,7 @@ class SearchBarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(

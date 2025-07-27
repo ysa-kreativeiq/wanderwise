@@ -8,10 +8,13 @@ class AuthTextField extends StatelessWidget {
   final Widget? suffixIcon;
   final bool obscureText;
   final TextInputType keyboardType;
+  final TextInputAction? textInputAction;
+  final bool autocorrect;
+  final bool enableSuggestions;
   final String? Function(String?)? validator;
   final void Function(String)? onChanged;
   final int maxLines;
-  
+
   const AuthTextField({
     super.key,
     required this.controller,
@@ -21,6 +24,9 @@ class AuthTextField extends StatelessWidget {
     this.suffixIcon,
     this.obscureText = false,
     this.keyboardType = TextInputType.text,
+    this.textInputAction,
+    this.autocorrect = true,
+    this.enableSuggestions = true,
     this.validator,
     this.onChanged,
     this.maxLines = 1,
@@ -29,11 +35,14 @@ class AuthTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return TextFormField(
       controller: controller,
       obscureText: obscureText,
       keyboardType: keyboardType,
+      textInputAction: textInputAction,
+      autocorrect: autocorrect,
+      enableSuggestions: enableSuggestions,
       validator: validator,
       onChanged: onChanged,
       maxLines: maxLines,
@@ -65,7 +74,8 @@ class AuthTextField extends StatelessWidget {
         ),
         filled: true,
         fillColor: Colors.grey[50],
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
     );
   }

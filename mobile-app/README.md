@@ -32,10 +32,10 @@ flutter run --release
 
 ## 📱 Features
 
-- **User Authentication**: Email/password and social login
+- **User Authentication**: Email/password authentication via Supabase
 - **Destination Discovery**: Explore travel destinations worldwide
 - **Itinerary Planning**: Create and manage travel plans
-- **Offline Maps**: Access maps without internet connection
+- **Location Services**: Access location-based features
 - **Social Features**: Share experiences with other travelers
 - **Real-time Updates**: Get live information about destinations
 
@@ -44,8 +44,8 @@ flutter run --release
 ```
 lib/
 ├── main.dart                     # App entry point
-├── firebase_options.dart         # Firebase configuration
 ├── core/                         # Core functionality
+│   ├── config/                   # Configuration (Supabase)
 │   ├── models/                   # Data models
 │   ├── providers/                # State management
 │   ├── services/                 # Business logic
@@ -62,15 +62,14 @@ lib/
 
 ### State Management
 - **Provider**: For state management
-- **Firebase**: For backend services
+- **Supabase**: For backend services
 
 ### Key Dependencies
-- `firebase_core`: Firebase initialization
-- `firebase_auth`: User authentication
-- `cloud_firestore`: Database
-- `google_maps_flutter`: Maps integration
+- `supabase_flutter`: Supabase client and authentication
+- `provider`: State management
 - `geolocator`: Location services
 - `cached_network_image`: Image caching
+- `shared_preferences`: Local storage
 
 ### Testing
 ```bash
@@ -94,41 +93,4 @@ flutter build appbundle --release
 
 # Build iOS
 flutter build ios --release
-```
-
-## 📦 Platform Configuration
-
-### Android
-- **Minimum SDK**: 23
-- **Target SDK**: 34
-- **Package**: com.example.wanderwise
-
-### iOS
-- **Minimum Version**: 14.0
-- **Target Version**: 18.0
-
-## 🚀 Deployment
-
-### Android
-1. Build app bundle: `flutter build appbundle --release`
-2. Upload to Google Play Console
-3. Submit for review
-
-### iOS
-1. Build iOS app: `flutter build ios --release`
-2. Archive in Xcode
-3. Upload to App Store Connect
-
-## 🔐 Environment Variables
-
-Create `.env` file:
-```
-FIREBASE_PROJECT_ID=wanderwise-app
-GOOGLE_MAPS_API_KEY=your_maps_api_key
-```
-
-## 📞 Support
-
-- **Issues**: [GitHub Issues](https://github.com/your-org/WanderWise/issues)
-- **Documentation**: [Project Wiki](https://github.com/your-org/WanderWise/wiki)
-- **Email**: mobile@wanderwise.com 
+``` 

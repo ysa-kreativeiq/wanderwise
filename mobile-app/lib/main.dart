@@ -1,26 +1,54 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:provider/provider.dart';
+import 'dart:io';
 
-import 'firebase_options.dart';
+import 'core/config/supabase_config.dart';
 import 'core/theme/app_theme.dart';
 import 'core/providers/auth_provider.dart';
 import 'core/providers/destination_provider.dart';
 import 'core/providers/itinerary_provider.dart';
 import 'features/auth/presentation/screens/simple_login_screen.dart';
-import 'features/admin/presentation/screens/admin_login_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Test network connectivity
   try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
+    final result = await InternetAddress.lookup('google.com');
+    if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+      print('Network connectivity test passed');
+    }
+  } on SocketException catch (_) {
+    print('Network connectivity test failed - no internet connection');
+  }
+
+  // Test Supabase URL resolution
+  try {
+    final result =
+        await InternetAddress.lookup('tmucyuaffclznrfnmyda.supabase.co');
+    if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+      print('Supabase URL resolution test passed: ${result[0].address}');
+    }
+  } on SocketException catch (e) {
+    print('Supabase URL resolution test failed: $e');
+  }
+
+  try {
+    print('Initializing Supabase with URL: ${SupabaseConfig.url}');
+    await Supabase.initialize(
+      url: SupabaseConfig.url,
+      anonKey: SupabaseConfig.anonKey,
     );
-    print('Firebase initialized successfully');
+    print('Supabase initialized successfully');
   } catch (e) {
-    print('Error initializing Firebase: $e');
-    // Continue running the app even if Firebase fails
+    print('Error initializing Supabase: $e');
+    print('Error type: ${e.runtimeType}');
+    if (e is SocketException) {
+      print('Socket error details: ${e.message}');
+      print('Socket error address: ${e.address}');
+      print('Socket error port: ${e.port}');
+    }
   }
 
   runApp(const WanderWiseApp());
@@ -41,11 +69,7 @@ class WanderWiseApp extends StatelessWidget {
         title: 'WanderWise',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
-        initialRoute: '/',
-        routes: {
-          '/': (context) => const SimpleLoginScreen(),
-          '/admin': (context) => const AdminLoginScreen(),
-        },
+        home: const SimpleLoginScreen(),
       ),
     );
   }

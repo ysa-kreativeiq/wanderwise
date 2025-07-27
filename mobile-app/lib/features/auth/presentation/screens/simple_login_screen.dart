@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../home/presentation/screens/main_navigation_screen.dart';
@@ -17,7 +17,7 @@ class _SimpleLoginScreenState extends State<SimpleLoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _auth = FirebaseAuth.instance;
+  final _supabase = Supabase.instance.client;
   bool _obscurePassword = true;
   bool _isLoading = false;
 
@@ -39,7 +39,8 @@ class _SimpleLoginScreenState extends State<SimpleLoginScreen> {
           padding: const EdgeInsets.all(24),
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              minHeight: size.height - MediaQuery.of(context).padding.top - 48,
+              minHeight: (size.height - MediaQuery.of(context).padding.top - 48)
+                  .clamp(0, double.infinity),
             ),
             child: IntrinsicHeight(
               child: Column(
@@ -96,6 +97,9 @@ class _SimpleLoginScreenState extends State<SimpleLoginScreen> {
                         TextFormField(
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
+                          textInputAction: TextInputAction.next,
+                          autocorrect: false,
+                          enableSuggestions: false,
                           decoration: InputDecoration(
                             labelText: 'Email',
                             prefixIcon: const Icon(Icons.email_outlined),
@@ -120,6 +124,9 @@ class _SimpleLoginScreenState extends State<SimpleLoginScreen> {
                         TextFormField(
                           controller: _passwordController,
                           obscureText: _obscurePassword,
+                          textInputAction: TextInputAction.done,
+                          autocorrect: false,
+                          enableSuggestions: false,
                           decoration: InputDecoration(
                             labelText: 'Password',
                             prefixIcon: const Icon(Icons.lock_outline),
@@ -234,20 +241,6 @@ class _SimpleLoginScreenState extends State<SimpleLoginScreen> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 24),
-                        // Admin Access Button
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pushNamed('/admin');
-                          },
-                          child: Text(
-                            'Admin Access',
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
                       ],
                     ),
                   ),
@@ -274,13 +267,13 @@ class _SimpleLoginScreenState extends State<SimpleLoginScreen> {
 
     try {
       print('Signing in with email: ${_emailController.text.trim()}');
-      final userCredential = await _auth.signInWithEmailAndPassword(
+      final response = await _supabase.auth.signInWithPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
-      print('Login successful: ${userCredential.user?.uid}');
+      print('Login successful: ${response.user?.id}');
 
-      if (mounted && userCredential.user != null) {
+      if (mounted && response.user != null) {
         print('Navigating to home screen');
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
@@ -288,22 +281,19 @@ class _SimpleLoginScreenState extends State<SimpleLoginScreen> {
           ),
         );
       }
-    } on FirebaseAuthException catch (e) {
-      print('Firebase Auth Exception: ${e.code} - ${e.message}');
+    } on AuthException catch (e) {
+      print('Supabase Auth Exception: ${e.message}');
       String message = 'An error occurred. Please try again.';
 
-      switch (e.code) {
-        case 'user-not-found':
+      switch (e.message) {
+        case 'Invalid login credentials':
+          message = 'Invalid email or password.';
+          break;
+        case 'Email not confirmed':
+          message = 'Please confirm your email address.';
+          break;
+        case 'User not found':
           message = 'No user found with this email.';
-          break;
-        case 'wrong-password':
-          message = 'Wrong password provided.';
-          break;
-        case 'invalid-email':
-          message = 'Invalid email address.';
-          break;
-        case 'user-disabled':
-          message = 'This account has been disabled.';
           break;
       }
 

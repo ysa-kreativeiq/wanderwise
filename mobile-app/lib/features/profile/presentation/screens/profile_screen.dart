@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../core/providers/auth_provider.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../auth/presentation/screens/simple_login_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -12,7 +13,7 @@ class ProfileScreen extends StatelessWidget {
     final theme = Theme.of(context);
     final authProvider = Provider.of<AuthProvider>(context);
     final user = authProvider.currentUser;
-    
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile'),
@@ -36,10 +37,10 @@ class ProfileScreen extends StatelessWidget {
                   CircleAvatar(
                     radius: 50,
                     backgroundColor: AppTheme.primaryTeal.withOpacity(0.1),
-                    backgroundImage: user?.photoUrl != null 
-                        ? NetworkImage(user!.photoUrl!) 
+                    backgroundImage: user?.photoUrl != null
+                        ? NetworkImage(user!.photoUrl!)
                         : null,
-                    child: user?.photoUrl == null 
+                    child: user?.photoUrl == null
                         ? Icon(
                             Icons.person,
                             color: AppTheme.primaryTeal,
@@ -103,6 +104,15 @@ class ProfileScreen extends StatelessWidget {
               child: OutlinedButton(
                 onPressed: () async {
                   await authProvider.signOut();
+                  // Navigate back to login screen
+                  if (context.mounted) {
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(
+                        builder: (context) => const SimpleLoginScreen(),
+                      ),
+                      (route) => false,
+                    );
+                  }
                 },
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Colors.red,
@@ -133,7 +143,7 @@ class _ProfileOption extends StatelessWidget {
   final String title;
   final String subtitle;
   final VoidCallback onTap;
-  
+
   const _ProfileOption({
     required this.icon,
     required this.title,
@@ -144,7 +154,7 @@ class _ProfileOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(

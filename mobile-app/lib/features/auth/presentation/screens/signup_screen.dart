@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import 'simple_home_screen.dart';
@@ -18,7 +18,7 @@ class _SignupScreenState extends State<SignupScreen> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _nameController = TextEditingController();
-  final _auth = FirebaseAuth.instance;
+  final _supabase = Supabase.instance.client;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   bool _isLoading = false;
@@ -242,43 +242,38 @@ class _SignupScreenState extends State<SignupScreen> {
 
     try {
       print('Creating user with email: ${_emailController.text.trim()}');
-      final userCredential = await _auth.createUserWithEmailAndPassword(
+      final response = await _supabase.auth.signUp(
         email: _emailController.text.trim(),
         password: _passwordController.text,
+        data: {
+          'name': _nameController.text.trim(),
+        },
       );
-      print('User created successfully: ${userCredential.user?.uid}');
+      print('User created successfully: ${response.user?.id}');
 
-      // Update user profile with name
-      if (userCredential.user != null) {
-        print('Updating display name: ${_nameController.text.trim()}');
-        await userCredential.user!
-            .updateDisplayName(_nameController.text.trim());
-        print('Display name updated successfully');
-      }
-
-      if (mounted && userCredential.user != null) {
+      if (mounted && response.user != null) {
         print('Navigating to home screen');
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
             builder: (context) => SimpleHomeScreen(
-              userEmail: userCredential.user!.email ?? 'User',
+              userEmail: response.user!.email ?? 'User',
             ),
           ),
           (route) => false,
         );
       }
-    } on FirebaseAuthException catch (e) {
-      print('Firebase Auth Exception: ${e.code} - ${e.message}');
+    } on AuthException catch (e) {
+      print('Supabase Auth Exception: ${e.message}');
       String message = 'An error occurred. Please try again.';
 
-      switch (e.code) {
-        case 'email-already-in-use':
+      switch (e.message) {
+        case 'User already registered':
           message = 'An account with this email already exists.';
           break;
-        case 'invalid-email':
+        case 'Invalid email':
           message = 'Invalid email address.';
           break;
-        case 'weak-password':
+        case 'Password should be at least 6 characters':
           message = 'Password is too weak.';
           break;
       }
