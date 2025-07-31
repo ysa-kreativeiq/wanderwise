@@ -156,6 +156,10 @@ serve(async (req) => {
       const mergedProfile = {
         ...existingProfile,
         ...newProfile,
+        // Handle both new format (separate fields) and legacy format (combined phone)
+        country_code: newProfile.country_code || existingProfile.country_code || '+1',
+        phone_number: newProfile.phone_number || existingProfile.phone_number || null,
+        // Keep legacy phone field for backward compatibility
         phone: phone || existingProfile.phone || null,
         notes: notes || existingProfile.notes || null,
       }
@@ -211,6 +215,10 @@ serve(async (req) => {
     
     // Prepare profile data for new traveler
     const newProfile = {
+      // Handle both new format (separate fields) and legacy format (combined phone)
+      country_code: profile?.country_code || '+1',
+      phone_number: profile?.phone_number || null,
+      // Keep legacy phone field for backward compatibility
       phone: phone || null,
       notes: notes || null,
       ...(profile || {}), // Include any additional profile fields

@@ -290,6 +290,29 @@ class _TravelerManagementScreenState extends State<TravelerManagementScreen> {
           children: [
             Text(traveler.email),
             const SizedBox(height: 4),
+            // Display phone number if available
+            if (traveler.profile?['phone_number'] != null && 
+                traveler.profile!['phone_number'].toString().isNotEmpty) ...[
+              Text(
+                '${traveler.profile!['country_code'] ?? ''}${traveler.profile!['phone_number']}',
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontSize: 12,
+                ),
+              ),
+              const SizedBox(height: 4),
+            ] else if (traveler.profile?['phone'] != null && 
+                       traveler.profile!['phone'].toString().isNotEmpty) ...[
+              // Legacy format
+              Text(
+                traveler.profile!['phone'],
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontSize: 12,
+                ),
+              ),
+              const SizedBox(height: 4),
+            ],
             Row(
               children: [
                 Container(
@@ -530,8 +553,20 @@ class _TravelerManagementScreenState extends State<TravelerManagementScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  if (traveler.profile!['phone'] != null)
-                    _buildDetailRow('Phone', traveler.profile!['phone']),
+                  ...(() {
+                    if (traveler.profile!['phone_number'] != null) {
+                      // New format: separate country code and phone number
+                      final countryCode = traveler.profile!['country_code'] ?? '';
+                      final phoneNumber = traveler.profile!['phone_number'] ?? '';
+                      if (phoneNumber.isNotEmpty) {
+                        return [_buildDetailRow('Phone', '$countryCode$phoneNumber')];
+                      }
+                    } else if (traveler.profile!['phone'] != null) {
+                      // Legacy format: combined phone field
+                      return [_buildDetailRow('Phone', traveler.profile!['phone'])];
+                    }
+                    return <Widget>[];
+                  })(),
                   if (traveler.profile!['company'] != null)
                     _buildDetailRow('Company', traveler.profile!['company']),
                   if (traveler.profile!['address'] != null)
@@ -737,9 +772,8 @@ class _AddTravelerDialogState extends State<AddTravelerDialog> {
 
         // Prepare profile data for existing traveler
         final profileData = {
-          'phone': _phoneController.text.trim().isNotEmpty
-              ? '$_selectedCountryCode${_phoneController.text.trim()}'
-              : '',
+          'country_code': _selectedCountryCode,
+          'phone_number': _phoneController.text.trim(),
           'company': _companyController.text.trim(),
           'address': _addressController.text.trim(),
           'city': _cityController.text.trim(),
@@ -782,9 +816,8 @@ class _AddTravelerDialogState extends State<AddTravelerDialog> {
 
         // Prepare profile data
         final profileData = {
-          'phone': _phoneController.text.trim().isNotEmpty
-              ? '$_selectedCountryCode${_phoneController.text.trim()}'
-              : '',
+          'country_code': _selectedCountryCode,
+          'phone_number': _phoneController.text.trim(),
           'company': _companyController.text.trim(),
           'address': _addressController.text.trim(),
           'city': _cityController.text.trim(),
@@ -1235,8 +1268,31 @@ class _EditTravelerDialogState extends State<EditTravelerDialog> {
     super.initState();
     _nameController = TextEditingController(text: widget.traveler.name);
     _emailController = TextEditingController(text: widget.traveler.email);
-    _phoneController =
-        TextEditingController(text: widget.traveler.profile?['phone'] ?? '');
+    
+    // Handle phone number and country code separately
+    final existingPhone = widget.traveler.profile?['phone_number'] ?? '';
+    final existingCountryCode = widget.traveler.profile?['country_code'] ?? '+1';
+    
+    // For backward compatibility, check if phone is stored as combined field
+    String phoneNumber = existingPhone;
+    String countryCode = existingCountryCode;
+    
+    if (existingPhone.isEmpty && widget.traveler.profile?['phone'] != null) {
+      // Legacy format: phone contains country code + number
+      final combinedPhone = widget.traveler.profile!['phone'] as String;
+      if (combinedPhone.startsWith('+')) {
+        // Extract country code and phone number
+        final match = RegExp(r'^(\+\d+)(.+)$').firstMatch(combinedPhone);
+        if (match != null) {
+          countryCode = match.group(1)!;
+          phoneNumber = match.group(2)!;
+        }
+      }
+    }
+    
+    _phoneController = TextEditingController(text: phoneNumber);
+    _selectedCountryCode = countryCode;
+    
     _companyController =
         TextEditingController(text: widget.traveler.profile?['company'] ?? '');
     _addressController =
@@ -1253,7 +1309,6 @@ class _EditTravelerDialogState extends State<EditTravelerDialog> {
         TextEditingController(text: widget.traveler.profile?['notes'] ?? '');
     _selectedStatus = widget.traveler.isActive ? 'Active' : 'Inactive';
     _selectedLanguage = widget.traveler.profile?['language'] ?? 'English';
-    _selectedCountryCode = widget.traveler.profile?['country_code'] ?? '+1';
   }
 
   @override
@@ -1281,9 +1336,8 @@ class _EditTravelerDialogState extends State<EditTravelerDialog> {
     try {
       // Prepare profile data
       final profileData = {
-        'phone': _phoneController.text.trim().isNotEmpty
-            ? '$_selectedCountryCode${_phoneController.text.trim()}'
-            : '',
+        'country_code': _selectedCountryCode,
+        'phone_number': _phoneController.text.trim(),
         'company': _companyController.text.trim(),
         'address': _addressController.text.trim(),
         'city': _cityController.text.trim(),
