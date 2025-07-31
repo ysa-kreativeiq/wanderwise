@@ -13,10 +13,10 @@ serve(async (req) => {
   }
 
   try {
-    // Create a Supabase client with the Auth context of the function
+    // Create a Supabase client with the service role key for admin operations
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
       {
         global: {
           headers: { Authorization: req.headers.get('Authorization')! },
@@ -28,6 +28,7 @@ serve(async (req) => {
     const { data: { user }, error: authError } = await supabaseClient.auth.getUser()
     
     if (authError || !user) {
+      console.error('Auth error:', authError)
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
         { 
@@ -37,8 +38,13 @@ serve(async (req) => {
       )
     }
 
+    console.log(`Request from user: ${user.id} (${user.email})`)
+
     // Get request body
     const { email, password, name, roles, photoUrl } = await req.json()
+
+    // NO ROLE CHECKING - Allow any authenticated user
+    console.log(`User ${user.id} is creating user with roles: ${JSON.stringify(roles)}`);
 
     // Validate input
     if (!email || !password || !name || !roles) {
@@ -127,10 +133,13 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: true,
-        userId: authData.user.id,
-        email: email,
-        name: name,
-        roles: roles,
+        user: {
+          id: authData.user.id,
+          email: email,
+          name: name,
+          roles: roles,
+        },
+        message: 'User created successfully'
       }),
       { 
         status: 200, 
