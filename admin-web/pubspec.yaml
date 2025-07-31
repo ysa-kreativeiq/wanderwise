@@ -1,0 +1,54 @@
+name: wanderwise_admin
+description: WanderWise Admin Panel - Web-based administration interface for managing users, destinations, and analytics.
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.0.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # State Management
+  provider: ^6.0.5
+  
+  # Supabase (Core services)
+  supabase_flutter: ^2.8.0
+  
+  # UI & Web-specific
+  cupertino_icons: ^1.0.8
+  google_fonts: ^6.2.1
+  flutter_animate: ^4.5.0
+  
+  # Web-specific packages
+  url_launcher: ^6.2.5
+  universal_html: ^2.2.4
+  file_picker: ^8.0.0
+  
+  # Charts and Data Visualization (Admin-specific)
+  fl_chart: ^0.69.0
+  data_table_2: ^2.5.10
+  
+  # Network & Storage
+  http: ^1.4.0
+  shared_preferences: ^2.5.3
+  cached_network_image: ^3.3.1
+  
+  # Utilities
+  intl: ^0.20.2
+  uuid: ^4.5.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  
+  assets:
+    - assets/images/
+    - assets/icons/ 
